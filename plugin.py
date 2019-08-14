@@ -129,6 +129,48 @@ def does_board_exist_action(board_name):
 
     print(json.dumps({"exists": False}))
 
+@Action(name="Trello: Does list exist?", description="Return whether or not a particular list exists",
+        required_arg_types=['board_name:str', 'listname:str'], generated_arg_types=['exists:bool'])
+def does_list_exist_action(board_name, listname):
+    """
+    This action determines whether a given list exists or not.
+    :param board_name: The board's name as a string
+    :param listname: The list's name as a string
+    :return: {'exists': True} if it does and {'exists': False} if not
+    """
+    client = createClient()
+
+    for b in client.list_boards():
+        if b.name == board_name:
+            for list in b.list_lists():
+                if list.name == listname:
+                    print(json.dumps({"exists": True}))
+                    return
+
+    print(json.dumps({"exists": False}))
+
+@Action(name="Trello: Does card exist?", description="Return whether or not a particular card exists",
+        required_arg_types=['board_name:str', 'listname:str', 'cardname:str'], generated_arg_types=['exists:bool'])
+def does_card_exist_action(board_name, listname, cardname):
+    """
+    This action determines whether a given card exists or not.
+    :param board_name: The board's name as a string
+    :param listname: The list's name as a string
+    :param cardname: The card's name as a string
+    :return: {'exists': True} if it does and {'exists': False} if not
+    """
+    client = createClient()
+
+    for b in client.list_boards():
+        if b.name == board_name:
+            for list in b.list_lists():
+                if list.name == listname:
+                    for card in list.list_cards():
+                        if card.name == cardname:
+                            print(json.dumps({"exists": True}))
+                            return
+
+    print(json.dumps({"exists": False}))
 
 @Action(name="Trello: Get link to board", description="Get a url for a given trello board",
         required_arg_types=['board_name:str'], generated_arg_types=['link:str'])
@@ -170,6 +212,7 @@ def get_link_for_card_action(board_name, listname, cardname):
                             return
     print(json.dumps({'link': 'notfound'}))
 
+
 @Action(name="Trello: Create comment on card", description="Given the path to a card, make a comment there.",
         required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'comment_string:str'])
 def make_comment_on_card_action(board_name, listname, cardname, comment_string):
@@ -192,6 +235,7 @@ def make_comment_on_card_action(board_name, listname, cardname, comment_string):
                             return
 
     print(json.dumps({}))
+
 
 @Action(name="Trello: Add label to card", description="Given the path to a card, add a label to it.",
         required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'label_string:str'])
@@ -223,8 +267,10 @@ def add_label_on_card_action(board_name, listname, cardname, label_string):
 
     print(json.dumps({}))
 
+
 @Action(name="Trello: Get labels on card", description="Given the path to a card, get the labels on it.",
-        required_arg_types=['board_name:str', 'listname:str', 'cardname:str'], generated_arg_types=['labels:str|[str]|none'])
+        required_arg_types=['board_name:str', 'listname:str', 'cardname:str'],
+        generated_arg_types=['labels:str|[str]|none'])
 def get_label_on_card_action(board_name, listname, cardname):
     """
     Get all labels attached to a specified card
@@ -252,8 +298,10 @@ def get_label_on_card_action(board_name, listname, cardname):
 
     print(json.dumps({}))
 
+
 @Action(name="Trello: Set item on card checklist", description="Mark a given item on a checklist on or off.",
-        required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str', 'item:str', 'onoff:bool|none'])
+        required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str', 'item:str',
+                            'onoff:bool|none'])
 def check_item_card_checklist_action(board_name, listname, cardname, checklist, item, onoff=None):
     """
     Sets a checklist item to a given value on a card
@@ -288,6 +336,7 @@ def check_item_card_checklist_action(board_name, listname, cardname, checklist, 
 
     print(json.dumps({}))
 
+
 @Action(name="Trello: Remove item on card checklist", description="Remove a given item from a checklist",
         required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str', 'item:str'])
 def remove_item_card_checklist_action(board_name, listname, cardname, checklist, item):
@@ -319,8 +368,10 @@ def remove_item_card_checklist_action(board_name, listname, cardname, checklist,
 
     print(json.dumps({}))
 
+
 @Action(name="Trello: Add item on card checklist", description="Add an item to a given checklist",
-        required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str', 'item:str', 'checked:bool|none'])
+        required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str', 'item:str',
+                            'checked:bool|none'])
 def add_item_card_checklist_action(board_name, listname, cardname, checklist, item, checked=False):
     """
     Add a checklist item to a card
@@ -355,6 +406,7 @@ def add_item_card_checklist_action(board_name, listname, cardname, checklist, it
 
     print(json.dumps({}))
 
+
 @Action(name="Trello: Add checklist to card", description="Add a new checklist to a card",
         required_arg_types=['board_name:str', 'listname:str', 'cardname:str', 'checklist:str'])
 def add_checklist_to_card_action(board_name, listname, cardname, checklist):
@@ -383,4 +435,28 @@ def add_checklist_to_card_action(board_name, listname, cardname, checklist):
 
     print(json.dumps({}))
 
-add_checklist_to_card_action('Suave - Flow Code', 'Plugins', 'TrelloPlugin TODO', 'Automation checklist')
+
+@Action(name="Trello: Create label", description="Creates a new label for a given board",
+        required_arg_types=['board_name:str', 'color:str', 'name:str'])
+def create_label_action(board_name, color, name):
+    """
+    Creates a new label with the given parameters
+    :param board_name: The board the card is in
+    :param color: the color, either green, yellow, orange
+            red, purple, blue, sky, lime, pink, or black
+    :param name: The name of the label
+    """
+
+    client = createClient()
+
+    for b in client.list_boards():
+        if b.name == board_name:
+            b.add_label(name, color)
+            print(json.dumps({}))
+            return
+
+    print(json.dumps({}))
+
+#does_card_exist_action('Suave - Flow Code', 'Plugins', 'TrelloPlugin TODO')
+#does_card_exist_action('Suave - Flow Code', 'Plugins', 'TrelloPlugin TODdafO')
+# add_checklist_to_card_action('Suave - Flow Code', 'Plugins', 'TrelloPlugin TODO', 'Automation checklist')
